@@ -34,9 +34,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 app.MapControllers();
 app.MapHub<TelemetryHub>("/hubs/telemetry");

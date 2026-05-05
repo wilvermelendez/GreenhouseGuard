@@ -1,0 +1,12 @@
+{
+  "name": "greenhouse-guard",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names \"api,web\" --prefix-colors \"cyan,magenta\" \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "dotnet watch run --project backend/GreenhouseGuard.Api/GreenhouseGuard.Api.csproj",
+    "dev:web": "npm --prefix frontend run start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
