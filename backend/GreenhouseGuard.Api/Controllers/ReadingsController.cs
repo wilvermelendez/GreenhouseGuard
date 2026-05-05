@@ -10,9 +10,7 @@ namespace GreenhouseGuard.Api.Controllers;
 [Route("api/[controller]")]
 public class ReadingsController(
     GreenhouseDbContext db,
-    IAnomalyDetector detector,
-    IAnomalyStore anomalyStore,
-    ISequenceGenerator sequenceGenerator) : ControllerBase
+    IReadingIngestionService ingestion) : ControllerBase
 {
     [HttpGet("latest")]
     public async Task<ActionResult<SensorReading>> GetLatest()
@@ -27,45 +25,14 @@ public class ReadingsController(
     [HttpPost]
     public async Task<ActionResult<SensorReading>> Post([FromBody] SensorReading input)
     {
-        var reading = new SensorReading
-        {
-            Id = Guid.NewGuid(),
-            Timestamp = DateTimeOffset.UtcNow,
-            SequenceNumber = sequenceGenerator.Next(),
-            Temperature = input.Temperature,
-            Humidity = input.Humidity,
-            Co2 = input.Co2
-        };
-
-        db.Readings.Add(reading);
-        await db.SaveChangesAsync();
-
-        foreach (var anomaly in detector.Evaluate(reading))
-            anomalyStore.Add(anomaly);
-
+        var reading = await ingestion.IngestAsync(input);
         return CreatedAtAction(nameof(GetLatest), reading);
     }
 
     [HttpPost("bulk")]
     public async Task<ActionResult<IEnumerable<SensorReading>>> PostBulk([FromBody] SensorReading[] inputs)
     {
-        var readings = inputs.Select(input => new SensorReading
-        {
-            Id = Guid.NewGuid(),
-            Timestamp = DateTimeOffset.UtcNow,
-            SequenceNumber = sequenceGenerator.Next(),
-            Temperature = input.Temperature,
-            Humidity = input.Humidity,
-            Co2 = input.Co2
-        }).ToList();
-
-        db.Readings.AddRange(readings);
-        await db.SaveChangesAsync();
-
-        foreach (var reading in readings)
-            foreach (var anomaly in detector.Evaluate(reading))
-                anomalyStore.Add(anomaly);
-
+        var readings = await Task.WhenAll(inputs.Select(ingestion.IngestAsync));
         return Ok(readings);
     }
 }
