@@ -41,29 +41,7 @@ function areaGradient(
       </div>
     </div>
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-        height: 100%;
-        min-height: 280px;
-      }
-
-      .chart-panel {
-        height: 100%;
-        min-height: 280px;
-        border-radius: var(--radius-lg);
-        padding: 0.85rem 1rem 1rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-      }
-
-      .chart-inner {
-        position: relative;
-        height: min(340px, 42vh);
-        min-height: 240px;
-      }
-    `,
-  ],
+  styleUrl: './sensor-chart.component.scss',
 })
 export class SensorChartComponent implements OnChanges {
   @Input() readings: SensorReading[] = [];
