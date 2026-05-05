@@ -10,10 +10,12 @@ public class ReadingIngestionService(
     IAnomalyDetector detector,
     IAnomalyStore anomalyStore,
     ISequenceGenerator sequenceGenerator,
-    IHubContext<TelemetryHub> hub) : IReadingIngestionService
+    IHubContext<TelemetryHub> hub,
+    ILogger<ReadingIngestionService> logger) : IReadingIngestionService
 {
     public async Task<SensorReading> IngestAsync(SensorReading input)
     {
+        // server assigns id, timestamp, and sequence — client values are untrusted
         var reading = new SensorReading
         {
             Id = Guid.NewGuid(),
@@ -27,12 +29,14 @@ public class ReadingIngestionService(
         db.Readings.Add(reading);
         await db.SaveChangesAsync();
 
-        await hub.Clients.All.SendAsync("ReadingReceived", reading);
+        try { await hub.Clients.All.SendAsync("ReadingReceived", reading); }
+        catch (Exception ex) { logger.LogWarning(ex, "SignalR broadcast failed for ReadingReceived"); }
 
         foreach (var anomaly in detector.Evaluate(reading))
         {
             anomalyStore.Add(anomaly);
-            await hub.Clients.All.SendAsync("AnomalyDetected", anomaly);
+            try { await hub.Clients.All.SendAsync("AnomalyDetected", anomaly); }
+            catch (Exception ex) { logger.LogWarning(ex, "SignalR broadcast failed for AnomalyDetected"); }
         }
 
         return reading;

@@ -12,6 +12,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<IAnomalyDetector, AnomalyDetector>();
 builder.Services.AddSingleton<IAnomalyStore, AnomalyStore>();
 builder.Services.AddSingleton<ISequenceGenerator, SequenceGenerator>();
+builder.Services.AddSingleton<ISimulatorState, SimulatorState>();
 builder.Services.AddScoped<IReadingIngestionService, ReadingIngestionService>();
 builder.Services.AddHostedService<SensorSimulator>();
 
@@ -19,9 +20,10 @@ builder.Services.AddDbContext<GreenhouseDbContext>(options =>
     options.UseInMemoryDatabase("GreenhouseDb"));
 
 // AllowCredentials() is required for SignalR WebSocket negotiation
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()));
@@ -34,8 +36,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
+app.UseCors("AllowAngular");
 app.MapControllers();
 app.MapHub<TelemetryHub>("/hubs/telemetry");
 

@@ -13,6 +13,8 @@ public class ReadingsController(
     IReadingIngestionService ingestion) : ControllerBase
 {
     [HttpGet("latest")]
+    [ProducesResponseType<SensorReading>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SensorReading>> GetLatest()
     {
         var reading = await db.Readings
@@ -23,6 +25,7 @@ public class ReadingsController(
     }
 
     [HttpPost]
+    [ProducesResponseType<SensorReading>(StatusCodes.Status201Created)]
     public async Task<ActionResult<SensorReading>> Post([FromBody] SensorReading input)
     {
         var reading = await ingestion.IngestAsync(input);
@@ -30,9 +33,13 @@ public class ReadingsController(
     }
 
     [HttpPost("bulk")]
+    [ProducesResponseType<IEnumerable<SensorReading>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<SensorReading>>> PostBulk([FromBody] SensorReading[] inputs)
     {
-        var readings = await Task.WhenAll(inputs.Select(ingestion.IngestAsync));
-        return Ok(readings);
+        // sequential — parallel calls would share one DbContext instance which is not thread-safe
+        var results = new List<SensorReading>();
+        foreach (var input in inputs)
+            results.Add(await ingestion.IngestAsync(input));
+        return Ok(results);
     }
 }

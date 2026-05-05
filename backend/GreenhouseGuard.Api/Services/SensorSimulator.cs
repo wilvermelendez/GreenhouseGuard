@@ -2,7 +2,7 @@ using GreenhouseGuard.Api.Models;
 
 namespace GreenhouseGuard.Api.Services;
 
-public class SensorSimulator(IServiceScopeFactory scopeFactory) : BackgroundService
+public class SensorSimulator(IServiceScopeFactory scopeFactory, ISimulatorState state, ILogger<SensorSimulator> logger) : BackgroundService
 {
     private readonly Random _rng = new();
     private int _tick = 0;
@@ -12,15 +12,23 @@ public class SensorSimulator(IServiceScopeFactory scopeFactory) : BackgroundServ
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(2000, stoppingToken);
+            _tick++;
+
+            if (!state.IsRunning) continue;
 
             var reading = GenerateReading();
 
             // BackgroundService is a singleton; DbContext is scoped — must create a scope per tick
             using var scope = scopeFactory.CreateScope();
             var ingestion = scope.ServiceProvider.GetRequiredService<IReadingIngestionService>();
-            await ingestion.IngestAsync(reading);
-
-            _tick++;
+            try
+            {
+                await ingestion.IngestAsync(reading);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ingestion failed on tick {Tick}; simulator continues", _tick);
+            }
         }
     }
 
