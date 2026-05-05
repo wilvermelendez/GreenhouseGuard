@@ -1,10 +1,11 @@
 import { DecimalPipe, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { Thresholds } from '../../models/thresholds.model';
 
 @Component({
   selector: 'app-sensor-card',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DecimalPipe, NgClass],
   template: `
     <div class="card" [ngClass]="[statusClass, 'accent-' + accent]">
@@ -51,6 +52,7 @@ import { Thresholds } from '../../models/thresholds.model';
       min-height: 140px;
       display: flex;
       flex-direction: column;
+      transition: border-color 0.55s ease, box-shadow 0.55s ease;
     }
 
     .card-inner { display: flex; flex-direction: column; gap: 0.65rem; flex: 1; }
@@ -78,6 +80,7 @@ import { Thresholds } from '../../models/thresholds.model';
       font-weight: 700;
       letter-spacing: -0.02em;
       line-height: 1.1;
+      transition: color 0.5s ease;
     }
     .dash {
       font-size: 2rem;
@@ -116,6 +119,7 @@ import { Thresholds } from '../../models/thresholds.model';
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
+      transition: background 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
     }
     .status-pill.green {
       background: rgba(74, 222, 128, 0.18);
@@ -198,7 +202,6 @@ export class SensorCardComponent {
       .join(' ');
   }
 
-  /** Closed polygon for gradient fill under sparkline. */
   get sparkFillPoints(): string {
     const line = this.sparklinePoints;
     if (!line) return '';

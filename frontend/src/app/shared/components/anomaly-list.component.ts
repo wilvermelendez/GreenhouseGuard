@@ -1,10 +1,11 @@
 import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, Input, OnChanges, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, Input, OnChanges, ViewChild } from '@angular/core';
 import { Anomaly } from '../../models/anomaly.model';
 
 @Component({
   selector: 'app-anomaly-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, LowerCasePipe, SlicePipe],
   template: `
     <div class="panel glass">
@@ -83,6 +84,11 @@ import { Anomaly } from '../../models/anomaly.model';
         border-radius: 99px;
       }
 
+      @keyframes item-in {
+        from { opacity: 0; transform: translateX(10px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+
       .item {
         display: flex;
         flex-direction: column;
@@ -93,6 +99,7 @@ import { Anomaly } from '../../models/anomaly.model';
         border: 1px solid var(--color-glass-border);
         background: rgba(15, 18, 26, 0.92);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        animation: item-in 0.22s ease-out both;
       }
 
       .item.temperature {
@@ -182,7 +189,7 @@ export class AnomalyListComponent implements OnChanges, AfterViewChecked {
 
   ngAfterViewChecked(): void {
     if (this.shouldScroll && this.scrollContainer) {
-      this.scrollContainer.nativeElement.scrollTop = 0;
+      this.scrollContainer.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
       this.shouldScroll = false;
     }
   }

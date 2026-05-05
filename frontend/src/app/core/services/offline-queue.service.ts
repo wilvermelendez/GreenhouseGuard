@@ -14,6 +14,7 @@ export class OfflineQueueService implements OnDestroy {
   private readonly signalR = inject(SignalRService);
 
   private queue: SensorReading[] = [];
+  private draining = false;
   readonly pendingCount$ = new BehaviorSubject<number>(0);
   private readonly subs = new Subscription();
 
@@ -46,8 +47,10 @@ export class OfflineQueueService implements OnDestroy {
   }
 
   private drain(): void {
-    if (this.queue.length === 0) return;
+    if (this.draining || this.queue.length === 0) return;
+    this.draining = true;
     const snapshot = [...this.queue];
+    let settled = 0;
     snapshot.forEach(reading => {
       this.http.post(`${environment.apiBaseUrl}/api/readings`, reading)
         .subscribe({
@@ -55,7 +58,9 @@ export class OfflineQueueService implements OnDestroy {
             this.queue = this.queue.filter(r => r !== reading);
             this.persist();
             this.pendingCount$.next(this.queue.length);
-          }
+          },
+          error: () => { /* reading stays in queue, retried on next drain */ },
+          complete: () => { if (++settled === snapshot.length) this.draining = false; },
         });
     });
   }

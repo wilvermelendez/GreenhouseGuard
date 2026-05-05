@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { ChartConfiguration, ScriptableContext } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { SensorReading } from '../../models/sensor-reading.model';
@@ -27,6 +27,7 @@ function areaGradient(
 @Component({
   selector: 'app-sensor-chart',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BaseChartDirective],
   template: `
     <div class="chart-panel glass">
