@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreenhouseGuard.Api", "GreenhouseGuard.Api.csproj", "{DF5FB186-CC8B-D939-AF1A-EFC581B194FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF5FB186-CC8B-D939-AF1A-EFC581B194FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF5FB186-CC8B-D939-AF1A-EFC581B194FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF5FB186-CC8B-D939-AF1A-EFC581B194FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF5FB186-CC8B-D939-AF1A-EFC581B194FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1785775-9DB1-47E9-B4EB-404BAF88A46C}
+	EndGlobalSection
+EndGlobal

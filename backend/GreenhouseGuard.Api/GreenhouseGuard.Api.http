@@ -1,0 +1,6 @@
+@GreenhouseGuard.Api_HostAddress = http://localhost:5010
+
+GET {{GreenhouseGuard.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
